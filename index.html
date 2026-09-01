@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lutfi Aji — Spatial Data Science &amp; GIS</title>
+<meta name="description" content="Portfolio of Lutfi Aji — Geoinformatics researcher and urban planner working across GIS, remote sensing and machine learning.">
+
+<!--
+  EDIT ME BEFORE PUBLISHING:
+  1. Replace "YOUR-EMAIL@example.com" in the contact section with your real email.
+  2. Confirm the Bachelor's degree line in the Education section.
+  3. Swap in a real headshot: replace the .portrait div with an <img> if you'd like a photo.
+  4. Add project images:
+     - For project covers: add "coverImg": "assets/your-cover.jpg" to each project in the PROJECTS object
+     - For slides: add "img": "assets/your-slide.jpg" to each slide in the slides array
+  5. Add real images to journey sample thumbnails with data-img="assets/your-image.jpg"
+  6. To publish: name this file index.html and put it at the root of a repo called
+     <yourusername>.github.io (or enable Pages on any repo, pointing at this file).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:        #0D1512;
+    --bg-soft:   #121C17;
+    --surface:   #17241E;
+    --border:    #263329;
+    --ink:       #ECE7D8;
+    --ink-dim:   #B7C2B4;
+    --muted:     #6F8276;
+    --veg:       #9FCC3B;   /* vegetation / NDVI accent */
+    --soil:      #C08349;   /* soil-map accent */
+    --water:     #4FA6A8;   /* water-index accent */
+    --veg-a:     rgba(159,204,59,0.14);
+    --maxw:      1120px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--veg); color:#0D1512; }
+
+  a{ color:inherit; text-decoration:none; }
+  h1,h2,h3{ font-family:'Instrument Serif', serif; font-weight:400; letter-spacing:0.01em; }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 32px; }
+
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--veg);
+  }
+
+  /* the NDVI-style scale bar — the signature device, reused across sections */
+  .scale-bar{
+    height:3px;
+    width:100%;
+    background:linear-gradient(90deg, var(--water), var(--veg) 55%, var(--soil));
+    border-radius:2px;
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--veg);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  /* ---------- nav ---------- */
+  header.nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(13,21,18,0.72);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:var(--maxw); margin:0 auto; padding:16px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-inner .name{ font-family:'JetBrains Mono', monospace; font-size:14px; letter-spacing:0.03em; color:var(--ink); }
+  .nav-inner .name span{ color:var(--veg); }
+  .nav-links{ display:flex; gap:28px; font-size:14px; color:var(--ink-dim); }
+  .nav-links a{ transition:color .2s; }
+  .nav-links a:hover{ color:var(--veg); }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; overflow:hidden;
+    min-height:100svh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding-top:80px;
+  }
+  /* ---------- hero portrait ---------- */
+  .hero-portrait{
+    width:250px; height:250px; border-radius:50%;
+    object-fit:cover; border:2px solid var(--veg);
+    flex-shrink:0;
+    box-shadow:0 0 60px rgba(159,204,59,0.2);
+  }
+  .hero-headline{ display:flex; align-items:center; gap:48px; }
+  @media (max-width:700px){ 
+    .hero-headline{ flex-direction:column-reverse; align-items:flex-start; gap:24px; }
+    .hero-portrait{ width:120px; height:120px; }
+  }
+  .contours{ position:absolute; inset:0; z-index:0; opacity:0.55; }
+  .contours svg{ width:140%; height:140%; position:absolute; top:-20%; left:-20%; animation:drift 60s linear infinite; }
+  @keyframes drift{
+    0%{ transform:translate(0,0); }
+    50%{ transform:translate(-2%,1.5%); }
+    100%{ transform:translate(0,0); }
+  }
+  .hero::after{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at 30% 20%, rgba(13,21,18,0.2), var(--bg) 72%);
+    z-index:1;
+  }
+  .hero-content{ position:relative; z-index:2; }
+
+  .kicker-row{ display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  .kicker-row .dot{ width:7px; height:7px; border-radius:50%; background:var(--veg); box-shadow:0 0 10px var(--veg); }
+
+  .hero h1{
+    font-size:clamp(48px, 9vw, 104px);
+    line-height:0.98;
+    color:var(--ink);
+  }
+  .hero h1 em{ font-style:italic; color:var(--veg); }
+
+  .hero .role{
+    margin-top:20px;
+    max-width:640px;
+    font-size:clamp(16px,2.2vw,19px);
+    color:var(--ink-dim);
+  }
+  .hero .role strong{ color:var(--ink); font-weight:600; }
+
+  .hero .scale-bar{ max-width:420px; margin-top:34px; }
+  .hero .scale-labels{
+    max-width:420px; display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted);
+    margin-top:8px; letter-spacing:0.05em;
+  }
+
+  .hero-links{ display:flex; gap:16px; margin-top:38px; flex-wrap:wrap; }
+  .btn{
+    font-family:'JetBrains Mono', monospace; font-size:13px; letter-spacing:0.03em;
+    padding:12px 20px; border-radius:3px; border:1px solid var(--border);
+    transition:border-color .2s, background .2s, color .2s;
+  }
+  .btn.primary{ background:var(--veg); color:#0D1512; border-color:var(--veg); font-weight:500; }
+  .btn.primary:hover{ background:#b3dd58; }
+  .btn.ghost{ color:var(--ink-dim); }
+  .btn.ghost:hover{ border-color:var(--veg); color:var(--veg); }
+
+  .scroll-cue{
+    position:absolute; bottom:36px; left:32px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted);
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-cue .line{ width:28px; height:1px; background:var(--muted); }
+
+  /* coordinate readout, fixed corner */
+  .coord{
+    position:fixed; right:24px; bottom:24px; z-index:40;
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-dim);
+    background:rgba(23,36,30,0.85); border:1px solid var(--border);
+    padding:10px 14px; border-radius:3px; text-align:right;
+    backdrop-filter:blur(6px);
+    display:none;
+  }
+  .coord .place{ color:var(--veg); display:block; margin-bottom:2px; }
+  @media (min-width:840px){ .coord{ display:block; } }
+
+  /* ---------- sections shared ---------- */
+  section{ padding:110px 0; border-top:1px solid var(--border); }
+  section .wrap > .eyebrow{ margin-bottom:14px; }
+  section h2{ font-size:clamp(30px,4vw,44px); margin-bottom:20px; }
+
+  /* ---------- about ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:64px; align-items:start; }
+  .about-grid p{ color:var(--ink-dim); font-size:17px; max-width:56ch; }
+  .about-grid p + p{ margin-top:16px; }
+  .stats{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .stat{ border-left:2px solid var(--veg); padding-left:16px; }
+  .stat .n{ font-family:'Instrument Serif', serif; font-size:38px; color:var(--ink); display:block; }
+  .stat .l{ font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:0.04em; }
+
+  @media (max-width:840px){ .about-grid{ grid-template-columns:1fr; gap:40px; } }
+
+  /* ---------- projects (NEW) ---------- */
+  .project-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:36px;
+    margin-top:48px;
+  }
+  .project-card{
+    display:block; width:100%; text-align:left;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    overflow:hidden; cursor:zoom-in; padding:0;
+    transition:border-color .25s, transform .25s;
+  }
+  .project-card:hover{ border-color:var(--veg); transform:translateY(-3px); }
+  .project-cover{
+    width:100%; aspect-ratio:16/10; position:relative; overflow:hidden;
+    background:var(--bg-soft);
+  }
+  .project-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .project-cover .ph{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    font-size:48px;
+  }
+  .project-cover .count{
+    position:absolute; right:10px; bottom:10px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.05em;
+    color:var(--ink); background:rgba(13,21,18,0.78);
+    padding:4px 9px; border-radius:20px;
+  }
+  .project-body{ padding:20px 22px 24px; }
+  .project-body .theme{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--veg); display:block; margin-bottom:8px;
+  }
+  .project-body h3{ font-size:21px; color:var(--ink); margin-bottom:8px; line-height:1.15; }
+  .project-body p{ font-size:14px; color:var(--ink-dim); max-width:60ch; }
+  .project-body .ptools{
+    margin-top:12px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
+  }
+
+  @media (max-width:780px){ .project-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- journey / timeline ---------- */
+  .timeline{ position:relative; margin-top:56px; }
+  .timeline::before{
+    content:''; position:absolute; left:9px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(180deg, var(--veg), var(--water) 45%, var(--soil) 100%);
+  }
+  .entry{ position:relative; padding-left:44px; margin-bottom:52px; }
+  .entry:last-child{ margin-bottom:0; }
+  .entry::before{
+    content:''; position:absolute; left:2px; top:6px; width:16px; height:16px;
+    border-radius:50%; background:var(--bg); border:2px solid var(--veg);
+  }
+  .entry.past::before{ border-color:var(--water); }
+  .entry .top-row{
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:6px;
+  }
+  .entry h3{ font-size:23px; color:var(--ink); }
+  .entry .org{ font-size:14.5px; color:var(--ink-dim); }
+  .entry .meta{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted);
+    display:flex; gap:14px; flex-wrap:wrap; margin-bottom:12px;
+  }
+  .entry .meta .geo{ color:var(--water); }
+  .entry p.desc{ color:var(--ink-dim); max-width:64ch; font-size:15px; }
+  .tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .tag{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--ink-dim);
+    border:1px solid var(--border); border-radius:20px; padding:5px 12px;
+  }
+
+  /* clickable sample work (no map thumbnails) */
+  .entry-media{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .media-thumb{
+    position:relative; display:block; width:140px; height:100px; flex-shrink:0;
+    border-radius:5px; overflow:hidden; border:1px solid var(--border);
+    transition:border-color .25s, transform .25s;
+    background:var(--surface); cursor:zoom-in; padding:0;
+  }
+  .media-thumb:hover{ border-color:var(--veg); transform:translateY(-2px); }
+  .media-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .media-thumb .ph{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    color:var(--veg);
+    background:linear-gradient(135deg, rgba(159,204,59,0.12), rgba(79,166,168,0.08));
+  }
+  .media-thumb .ph.soil{
+    color:var(--soil);
+    background:linear-gradient(135deg, rgba(192,131,73,0.15), rgba(159,204,59,0.08));
+  }
+  .media-thumb .ph.water{
+    color:var(--water);
+    background:linear-gradient(135deg, rgba(79,166,168,0.15), rgba(159,204,59,0.08));
+  }
+  .media-thumb .label{
+    position:absolute; left:6px; bottom:6px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:9.5px; letter-spacing:0.05em;
+    color:var(--ink); background:rgba(13,21,18,0.78);
+    padding:3px 7px; border-radius:2px; text-transform:uppercase;
+  }
+
+  .earlier{
+    margin-top:44px; padding-top:28px; border-top:1px dashed var(--border);
+  }
+  .earlier .eyebrow{ margin-bottom:16px; display:block; }
+  .earlier-row{
+    display:flex; justify-content:space-between; gap:20px; padding:11px 0;
+    border-bottom:1px solid var(--border); font-size:14.5px; flex-wrap:wrap;
+  }
+  .earlier-row:last-child{ border-bottom:none; }
+  .earlier-row .role{ color:var(--ink); }
+  .earlier-row .org{ color:var(--muted); }
+  .earlier-row .when{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+
+  /* ---------- skills ---------- */
+  .skill-groups{ display:grid; grid-template-columns:repeat(2,1fr); gap:40px; margin-top:44px; }
+  .skill-group h4{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ink-dim); margin-bottom:14px;
+  }
+  .skill-group .scale-bar{ height:2px; margin-bottom:16px; max-width:120px; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-size:13.5px; padding:7px 13px; border-radius:3px;
+    background:var(--surface); border:1px solid var(--border); color:var(--ink-dim);
+    transition:border-color .2s, color .2s;
+  }
+  .chip:hover{ border-color:var(--veg); color:var(--ink); }
+  @media (max-width:700px){ .skill-groups{ grid-template-columns:1fr; } }
+
+  /* ---------- education ---------- */
+  .edu-row{ display:flex; gap:28px; padding:22px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .edu-row:last-child{ border-bottom:none; }
+  .edu-row .when{ font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--veg); min-width:120px; }
+  .edu-row h3{ font-size:20px; margin-bottom:4px; }
+  .edu-row .school{ color:var(--ink-dim); font-size:14.5px; }
+
+  /* ---------- contact ---------- */
+  .contact-inner{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:40px; }
+  .contact-inner h2{ font-size:clamp(34px,6vw,58px); max-width:600px; }
+  .contact-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+  .contact-links a{
+    font-family:'JetBrains Mono', monospace; font-size:14.5px; color:var(--ink-dim);
+    border-bottom:1px solid var(--border); padding-bottom:3px; transition:color .2s, border-color .2s;
+  }
+  .contact-links a:hover{ color:var(--veg); border-color:var(--veg); }
+
+  footer{
+    padding:28px 0 60px; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
+  }
+
+  /* reveal on scroll */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- lightbox (enhanced with slideshow) ---------- */
+  .lightbox{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    background:rgba(9,14,12,0.92);
+    backdrop-filter:blur(8px);
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .lightbox.open{ opacity:1; pointer-events:auto; }
+  .lightbox-inner{
+    position:relative; width:100%; max-width:800px;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    overflow:hidden;
+    transform:translateY(20px) scale(0.97); transition:transform .3s ease;
+  }
+  .lightbox.open .lightbox-inner{ transform:translateY(0) scale(1); }
+  .lightbox-media{
+    width:100%; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center;
+    position:relative;
+    background:var(--bg-soft);
+  }
+  .lightbox-media img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .lightbox-media .ph{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; height:100%; font-size:64px;
+  }
+  .lightbox-text{ padding:22px 26px 26px; }
+  .lightbox-tag{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--veg);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .lightbox-tag .idx{ color:var(--muted); }
+  .lightbox-text h3{ font-size:26px; margin:8px 0 8px; color:var(--ink); }
+  .lightbox-text p{ color:var(--ink-dim); font-size:14.5px; max-width:56ch; }
+  .lightbox-close{
+    position:absolute; top:14px; right:14px; z-index:3;
+    width:36px; height:36px; border-radius:50%;
+    background:rgba(13,21,18,0.8); border:1px solid var(--border);
+    color:var(--ink); font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .2s, color .2s;
+    cursor:pointer;
+  }
+  .lightbox-close:hover{ border-color:var(--veg); color:var(--veg); }
+
+  .lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:3;
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(13,21,18,0.8); border:1px solid var(--border);
+    color:var(--ink); font-size:22px; line-height:1;
+    display:none; align-items:center; justify-content:center;
+    transition:border-color .2s, color .2s, background .2s;
+    cursor:pointer;
+  }
+  .lightbox-nav:hover{ border-color:var(--veg); color:var(--veg); }
+  .lightbox-nav.prev{ left:16px; }
+  .lightbox-nav.next{ right:16px; }
+  .lightbox.has-slides .lightbox-nav{ display:flex; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <span class="name">LUTFI<span>·</span>AJI</span>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#journey">Journey</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="coord mono" id="coord">
+  <span class="place">SZEGED, HU</span>
+  46.2530° N · 20.1414° E
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top" data-lat="46.2530° N" data-lon="20.1414° E" data-place="SZEGED, HU" style="border-top:none; padding-top:0;">
+  <div class="contours" aria-hidden="true">
+    <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#9FCC3B" stroke-width="1">
+        <path opacity="0.5" d="M50 400 Q 200 200, 400 400 T 750 400"/>
+        <path opacity="0.35" d="M20 460 Q 220 280, 420 460 T 780 460"/>
+        <path opacity="0.25" d="M0 520 Q 240 360, 460 520 T 800 520"/>
+        <path opacity="0.18" d="M-20 340 Q 180 140, 380 340 T 730 340"/>
+      </g>
+      <g fill="none" stroke="#4FA6A8" stroke-width="1">
+        <path opacity="0.3" d="M60 600 Q 260 480, 460 600 T 820 600"/>
+        <path opacity="0.2" d="M30 660 Q 240 560, 450 660 T 810 660"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap hero-content">
+    <div class="kicker-row">
+      <span class="dot"></span>
+      <span class="eyebrow">Geoinformatics · GIS · Remote Sensing</span>
+    </div>
+    <div class="hero-headline">
+      <div>
+        <h1>Lutfi Aji<br><em>reads the land</em><br>in pixels &amp; polygons.</h1>
+      </div>
+      <img src="assets/portrait.jpg" alt="Lutfi Aji — Geoinformatics researcher" class="hero-portrait">
+    </div>
+    <p class="role">
+      Spatial data science enthusiast graduated with a <strong>Master's in Geoinformatics</strong>
+      at the University of Szeged, Hungary, scholarship funded, after three years planning cities and creating maps on the ground
+      in Yogyakarta, Tangerang Selatan and Jakarta.
+    </p>
+    <div class="scale-bar"></div>
+    <div class="scale-labels"><span>WATER INDEX</span><span>VEGETATION</span><span>SOIL</span></div>
+
+    <div class="hero-links">
+      <a class="btn primary" href="#projects">See the work</a>
+      <a class="btn ghost" href="https://www.linkedin.com/in/lutfiaji471/" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a class="btn ghost" href="https://github.com/lootfee471" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn ghost" href="#contact">Get in touch</a>
+    </div>
+  </div>
+
+  <div class="scroll-cue"><span class="line"></span> SCROLL</div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <span class="eyebrow">01 · About</span>
+      <h2>Two scales, one instinct.</h2>
+      <p>
+        I move between the contour of a city block and the pixel of a satellite image.
+        Trained as an urban planner from my bachelor, I spent three (3) years drafting zoning plans and urban design
+        guidelines across Yogyakarta, Tangerang Selatan and Jakarta; then turned the
+        same spatial instincts toward data.
+      </p>
+      <p>
+        Today that means building machine learning and deep learning models that predict
+        crop yield and classify land use from Sentinel, PlanetScope and EnMAP imagery, engineering vegetation
+        indices like NDVI and NDWI, and helping digitize big-scale Hungarian soil
+        survey database into a national legacy map.
+      </p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><span class="n">6+</span><span class="l">YEARS ACROSS PLANNING &amp; GIS</span></div>
+      <div class="stat"><span class="n">2</span><span class="l">COUNTRIES OF FIELDWORK</span></div>
+      <div class="stat"><span class="n">10+</span><span class="l">ROLES, ONE SPATIAL THREAD</span></div>
+      <div class="stat"><span class="n">MSc</span><span class="l">GEOINFORMATICS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS (NEW) ================= -->
+<section id="projects">
+  <div class="wrap">
+    <span class="eyebrow reveal">02 · Projects</span>
+    <h2 class="reveal">Featured work, up close.</h2>
+    <p class="reveal" style="color:var(--ink-dim); max-width:64ch; margin-top:-6px; margin-bottom:8px;">
+      Click any project to open a slideshow of its visuals, methods and outcomes.
+    </p>
+    <div class="project-grid" id="projectGrid"></div>
+  </div>
+</section>
+
+<!-- ================= JOURNEY ================= -->
+<section id="journey">
+  <div class="wrap">
+    <span class="eyebrow reveal">03 · Journey</span>
+    <h2 class="reveal">From planning cities to remote sensing.</h2>
+
+    <div class="timeline">
+
+      <div class="entry reveal" data-lat="46.2530° N" data-lon="20.1414° E" data-place="SZEGED, HU">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="Crop yield model outputs" data-img="assets/journey-crop-yield.jpg" aria-haspopup="dialog" aria-label="View sample work: crop yield model outputs">
+            <span class="label">Sample</span>
+            <span class="ph"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Research Assistant</h3><span class="org">University of Szeged</span></div>
+        <div class="meta"><span>Jan 2025 — Present</span><span class="geo">Szeged, Hungary · Hybrid</span></div>
+        <p class="desc">
+          Building ML and deep learning models that predict winter wheat crop yield in Mezőhegyes from
+          field data and satellite imagery (EnMAP, Sentinel, PlanetScope); cleaning and
+          preprocessing data, and engineering vegetation indices like NDVI, NDWI and LAI.
+        </p>
+        <div class="tags">
+          <span class="tag">GIS</span><span class="tag">Machine Learning</span>
+          <span class="tag">Deep Learning</span><span class="tag">Remote Sensing</span>
+          <span class="tag">Precision Agriculture</span>
+        </div>
+      </div>
+
+      <div class="entry past reveal" data-lat="47.4979° N" data-lon="19.0402° E" data-place="BUDAPEST, HU">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="Digitized soil survey records" data-img="assets/journey-soil-legacy.jpg" aria-haspopup="dialog" aria-label="View sample work: digitized soil survey records">
+            <span class="label">Sample</span>
+            <span class="ph soil"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Geographic Information System Intern</h3><span class="org">Institute for Soil Sciences (HUN-REN ATK TAKI)</span></div>
+        <div class="meta"><span>Jun 2025 — Jul 2025</span><span class="geo">Budapest, Hungary · Hybrid</span></div>
+        <p class="desc">
+          Contributed to a nationwide Soil Legacy Maps project for Hungary, structuring and
+          digitizing decades of soil survey records in ArcGIS and QGIS.
+        </p>
+        <div class="tags">
+          <span class="tag">Geospatial Information Systems</span><span class="tag">ArcGIS</span>
+          <span class="tag">QGIS</span><span class="tag">Python</span>
+        </div>
+      </div>
+
+      <div class="entry past reveal" data-lat="47.1625° N" data-lon="19.5033° E" data-place="HUNGARY (REMOTE)">
+        <div class="top-row"><h3>Mentor, Stipendium Hungaricum Mentorship</h3><span class="org">PPI Hungaria</span></div>
+        <div class="meta"><span>Oct 2024 — Jan 2025</span><span class="geo">Hungary · Remote</span></div>
+        <p class="desc">
+          Guided incoming Indonesian scholarship students through settling into student
+          life in Hungary.
+        </p>
+      </div>
+
+      <div class="entry past reveal" data-lat="6.2615° S" data-lon="106.8106° E" data-place="JAKARTA SELATAN, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="Ministerial planning documents" data-img="assets/journey-ministerial.jpg" aria-haspopup="dialog" aria-label="View sample work: ministerial planning documents">
+            <span class="label">Sample</span>
+            <span class="ph water"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Individual Consultant</h3><span class="org">Indonesia's Ministry of Public Works and Housing</span></div>
+        <div class="meta"><span>Aug 2023 — Aug 2024</span><span class="geo">Jakarta Selatan, Indonesia · On-site</span></div>
+        <p class="desc">
+          Supported ministerial planning and reporting for the Policy Implementation
+          Analysis Department; drafting official documents, journals and presentations
+          for national program implementation.
+        </p>
+      </div>
+
+      <div class="entry past reveal" data-lat="6.2897° S" data-lon="106.7112° E" data-place="TANGERANG SELATAN, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="TOD and base-map concepts" data-img="assets/journey-tod.jpg" aria-haspopup="dialog" aria-label="View sample work: TOD and base-map concepts">
+            <span class="label">Sample</span>
+            <span class="ph"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Assistant Urban Planner (GIS)</h3><span class="org">PT Pangrancana Spasialindo Pratama</span></div>
+        <div class="meta"><span>Aug 2023 — Feb 2024</span><span class="geo">Tangerang Selatan, Indonesia · Hybrid</span></div>
+        <p class="desc">
+          Built GIS models and integrated remote sensing data for urban design and spatial
+          planning projects; automated data cleaning in Python and visualized results with
+          Google Earth Engine and Looker Studio; coordinated TOD and base-map concepts.
+        </p>
+        <div class="tags">
+          <span class="tag">GIS Modeling</span><span class="tag">Google Earth Engine</span>
+          <span class="tag">Python</span><span class="tag">Looker Studio</span>
+        </div>
+      </div>
+
+      <div class="entry past reveal" data-lat="6.2897° S" data-lon="106.7112° E" data-place="TANGERANG SELATAN, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="Waste-mapping initiative" data-img="assets/journey-waste-mapping.jpg" aria-haspopup="dialog" aria-label="View sample work: waste-mapping initiative">
+            <span class="label">Sample</span>
+            <span class="ph soil"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Associate Urban Planner</h3><span class="org">PT Pangrancana Spasialindo Pratama</span></div>
+        <div class="meta"><span>Jan 2022 — Feb 2023</span><span class="geo">Tangerang Selatan, Indonesia · On-site</span></div>
+        <p class="desc">
+          Worked on urban design guideline and detailed spatial planning projects; data transformation,
+          integration of cartographic sources and conceptual planning for TOD and
+          waste-mapping initiatives.
+        </p>
+        <div class="tags">
+          <span class="tag">Zoning</span><span class="tag">Land Use Planning</span>
+          <span class="tag">QGIS</span><span class="tag">ArcGIS</span>
+        </div>
+      </div>
+
+      <div class="entry past reveal" data-lat="7.7956° S" data-lon="110.3695° E" data-place="YOGYAKARTA, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="RTBL guideline drawings" data-img="assets/journey-rtbl.jpg" aria-haspopup="dialog" aria-label="View sample work: RTBL guideline drawings">
+            <span class="label">Sample</span>
+            <span class="ph water"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Assistant Urban Designer</h3><span class="org">KREA Architects</span></div>
+        <div class="meta"><span>Aug 2021 — Dec 2021</span><span class="geo">Yogyakarta, Indonesia · On-site</span></div>
+        <p class="desc">
+          Helped revise urban design guidelines for the UGM Valley Cluster; zoning, code
+          compliance, planning surveys and report preparation.
+        </p>
+      </div>
+
+      <div class="entry past reveal" data-lat="7.7956° S" data-lon="110.3695° E" data-place="YOGYAKARTA, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="3D models and Lumion renders" data-img="assets/journey-3d-models.jpg" aria-haspopup="dialog" aria-label="View sample work: 3D models and Lumion renders">
+            <span class="label">Sample</span>
+            <span class="ph"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Freelancer</h3><span class="org">Komunitas Ilmuwan dan Profesional Muslim Indonesia (KIPMI)</span></div>
+        <div class="meta"><span>Apr 2020 — Nov 2020</span><span class="geo">Yogyakarta, Indonesia · Hybrid</span></div>
+        <p class="desc">
+          Produced site and landscape analyses for university development projects, including
+          shapefiles, 3D models and Lumion renders.
+        </p>
+      </div>
+
+      <div class="entry past reveal" data-lat="7.7956° S" data-lon="110.3695° E" data-place="YOGYAKARTA, ID">
+        <div class="entry-media">
+          <!-- <button type="button" class="media-thumb" data-type="Sample" data-title="Regional planning review" data-img="assets/journey-planning-review.jpg" aria-haspopup="dialog" aria-label="View sample work: regional planning review">
+            <span class="label">Sample</span>
+            <span class="ph soil"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg></span>
+          </button> -->
+        </div>
+        <div class="top-row"><h3>Internship</h3><span class="org">BAPPEDA Provinsi DIY</span></div>
+        <div class="meta"><span>Aug 2020 — Oct 2020</span><span class="geo">Yogyakarta, Indonesia</span></div>
+        <p class="desc">
+          Reviewed and synchronized regional planning and budgeting documents, presenting
+          findings and recommendations to supervisors.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="earlier reveal">
+      <span class="eyebrow">Earlier · campus &amp; teaching</span>
+      <div class="earlier-row">
+        <span class="role">Head of Community Service Division — <span class="org">HMTPWK, Universitas Gadjah Mada</span></span>
+        <span class="when">Jul 2019 — Jan 2020</span>
+      </div>
+      <div class="earlier-row">
+        <span class="role">Coordinator of Design Division — <span class="org">PPSMB Kesatria, Faculty of Engineering UGM</span></span>
+        <span class="when">Apr 2019 — Sep 2019</span>
+      </div>
+      <div class="earlier-row">
+        <span class="role">Lecturer Assistant, Communication &amp; Presentation Technique — <span class="org">Universitas Gadjah Mada</span></span>
+        <span class="when">Jul 2018 — Oct 2018</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section id="skills">
+  <div class="wrap">
+    <span class="eyebrow reveal">04 · Skills</span>
+    <h2 class="reveal">The instruments.</h2>
+
+    <div class="skill-groups">
+      <div class="skill-group reveal">
+        <div class="scale-bar" style="background:linear-gradient(90deg,var(--water),var(--veg));"></div>
+        <h4>Geospatial &amp; Remote Sensing</h4>
+        <div class="chip-row">
+          <span class="chip">ArcGIS</span><span class="chip">QGIS</span><span class="chip">Google Earth Engine</span>
+          <span class="chip">Remote Sensing</span><span class="chip">Sentinel / PlanetScope / EnMAP</span>
+          <span class="chip">Geospatial Information Systems</span>
+        </div>
+      </div>
+      <div class="skill-group reveal">
+        <div class="scale-bar" style="background:linear-gradient(90deg,var(--veg),var(--soil));"></div>
+        <h4>Data &amp; Machine Learning</h4>
+        <div class="chip-row">
+          <span class="chip">Python</span><span class="chip">R language</span><span class="chip">Machine Learning and Deep Learning</span>
+          <span class="chip">Data Analytics</span><span class="chip">Looker Studio</span>
+        </div>
+      </div>
+      <div class="skill-group reveal">
+        <div class="scale-bar" style="background:linear-gradient(90deg,var(--soil),var(--water));"></div>
+        <h4>Urban &amp; Spatial Planning</h4>
+        <div class="chip-row">
+          <span class="chip">Zoning</span><span class="chip">Land Use Planning</span><span class="chip">Urban Design Guidelines</span>
+          <span class="chip">Project Planning</span><span class="chip">Site Analysis</span><span class="chip">Urban Design</span>
+        </div>
+      </div>
+      <div class="skill-group reveal">
+        <div class="scale-bar" style="background:linear-gradient(90deg,var(--water),var(--soil));"></div>
+        <h4>People &amp; Communication</h4>
+        <div class="chip-row">
+          <span class="chip">Leadership</span><span class="chip">Public Speaking</span>
+          <span class="chip">Community Development</span><span class="chip">Sales Management</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EDUCATION ================= -->
+<section id="education">
+  <div class="wrap">
+    <span class="eyebrow reveal">05 · Education</span>
+    <h2 class="reveal">Coordinates of study.</h2>
+    <div style="margin-top:36px;">
+      <div class="edu-row reveal">
+        <span class="when mono">2024 — 2026</span>
+        <div>
+          <h3>MSc Geoinformatics <span class="mono" style="font-size:12px;color:var(--muted);">GPA: 4.95/5.00</span></h3>
+          <div class="school">University of Szeged, Hungary</div>
+        </div>
+      </div>
+      <div class="edu-row reveal">
+        <span class="when mono">2017 — 2021</span>
+        <div>
+          <h3>BSc Urban and Regional Planning <span class="mono" style="font-size:12px;color:var(--muted);">GPA: 3.63/4.00</span></h3>
+          <div class="school">Universitas Gadjah Mada, Indonesia</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="wrap contact-inner">
+    <h2 class="reveal">Mapping something<br>interesting? Let's talk.</h2>
+    <div class="contact-links reveal">
+      <a href="mailto:lutfiaji471@gmail.com">lutfiaji471@gmail.com</a>
+      <a href="https://www.linkedin.com/in/lutfiaji471/" target="_blank" rel="noopener">linkedin.com/in/lutfiaji471 ↗</a>
+      <a href="https://github.com/lootfee471" target="_blank" rel="noopener">github.com/lootfee471 ↗</a>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> LUTFI AJI — BUILT WITH CONTOUR LINES &amp; COFFEE
+</footer>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lightboxTitle">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
+    <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Previous">‹</button>
+    <button class="lightbox-nav next" id="lightboxNext" aria-label="Next">›</button>
+    <div class="lightbox-media" id="lightboxMedia"></div>
+    <div class="lightbox-text">
+      <span class="lightbox-tag"><span id="lightboxTag"></span><span class="idx" id="lightboxIdx"></span></span>
+      <h3 id="lightboxTitle"></h3>
+      <p id="lightboxDesc">
+        Add a <code>data-img="assets/your-image.jpg"</code> attribute to the thumbnail button to show a real image.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ============================================================
+     PROJECTS DATA — Edit this to change what shows in the grid.
+     
+     To use real images:
+       - Add "coverImg": "assets/your-cover.jpg" to a project card
+       - Add "img": "assets/slide-1.jpg" to each slide inside the slides array
+     Without an "img" property, a placeholder will be shown.
+     ============================================================ */
+  const PROJECTS = {
+    merapi: {
+      theme: 'Terrain Analysis & 3D Modeling',
+      title: 'Mount Merapi — Comparative DEM Analysis & Model Evaluation',
+      summary: 'Evaluating interpolation methods for DEM generation on Mount Merapi\'s complex volcanic terrain.',
+      tools: 'Surfer 13 · QGIS (Smart-Map Plugin)',
+      cover: 'veg',
+      coverImg: 'assets/merapi-cover.png',
+      slides: [
+        { tag:'Visual 1', img: 'assets/merapi-slide-1.png', title:'Interpolation method comparison', desc:'Side-by-side comparison of interpolation outputs: IDW, Triangulation, Natural Neighbor and Kriging.' },
+        { tag:'Visual 2', img: 'assets/merapi-slide-2.png', title:'Kriging cross-validation', desc:'Smart-Map Kriging achieved R² = 0.994 — the best statistical fit.' }
+      ]
+    },
+    salgotarjan: {
+      theme: 'Terrain Analysis & 3D Modeling',
+      title: 'Fieldwork Data Integration & Erosion Analysis — Salgótarján',
+      summary: 'A 3-day fieldwork campaign assessing geomorphometric change from erosion at a slag heap and rhyolite tuff formation.',
+      tools: 'Leica Viva RTK GS15 · Topcon OS 103 · DJI Phantom 4 · CloudCompare · QGIS',
+      cover: 'soil',
+      coverImg: 'assets/salgotarjan-cover.jpg',
+      slides: [
+        { tag:'Visual 3', img: 'assets/salgotarjan-slide-1.png', title:'Fieldwork at Kazár', desc:'On-site photo of the Leica RTK and total station equipment used to survey the slag heap and rhyolite tuff formation.' },
+        { tag:'Visual 4', img: 'assets/salgotarjan-slide-2.png', title:'Point cloud & derived DEM', desc:'Drone-derived 3D point cloud processed in CloudCompare, and the resulting DEM built in QGIS.' },
+        { tag:'Visual 5', img: 'assets/salgotarjan-slide-3.png', title:'Raster difference map', desc:'Difference map between the drone DEM and total station DEM — red areas show high discrepancy.' }
+      ]
+    },
+    rio_stereo: {
+      theme: 'Terrain Analysis & 3D Modeling (Assignment Project)',
+      title: '3D Stereo Digitization & Accuracy Assessment — Rio de Janeiro',
+      summary: 'Digitizing 3D features from a stereo model of the Maracanã station area and assessing positional and elevation accuracy.',
+      tools: 'E-foto Stereo Model · QGIS · Google Earth Pro',
+      cover: 'water',
+      coverImg: 'assets/rio-cover1.jpg',
+      slides: [
+        { tag:'Visual 6', img: 'assets/rio-slide-1.jpg', title:'Stereo vectorization', desc:'3D vector shapefile creation in E-foto shown alongside the exported features in QGIS.' },
+        { tag:'Visual 7', img: 'assets/rio-slide-2.png', title:'Accuracy assessment', desc:'Features overlaid on Google Earth Pro — ~95% positional accuracy, ~70% elevation accuracy.' }
+      ]
+    },
+    lidar: {
+      theme: 'Terrain Analysis & 3D Modeling',
+      title: 'Lidar Data Processing & Building Height Estimation',
+      summary: 'Processing a Lidar point cloud to filter, clean and extract building height.',
+      tools: 'Lidar point cloud processing software',
+      cover: 'soil',
+      coverImg: 'assets/lidar-cover1.jpg',
+      slides: [
+        { tag:'Visual 8', img: 'assets/lidar-slide-1.png', title:'Multi-view point cloud', desc:'Top, front and side views of the filtered, colorized Lidar point cloud.' },
+        { tag:'Visual 9', img: 'assets/lidar-slide-2.jpeg', title:'Building height measurement', desc:'Building height calculated at 19 meters (Z max 98.31 − Z base 79.52).' }
+      ]
+    },
+    viewshed: {
+      theme: 'Terrain Analysis & 3D Modeling',
+      title: 'Tower Visibility & Viewshed Analysis — Lom Hill, Hungary',
+      summary: 'Planning a lookout tower at Lom Hill to ensure visibility of a nearby church tower.',
+      tools: 'QGIS 3.34 (SAGA & Visibility plugins)',
+      cover: 'veg',
+      coverImg: 'assets/viewshed-cover1.jpg',
+      slides: [
+        { tag:'Visual 10', img: 'assets/viewshed-slide-1.png', title:'Viewshed at eye level', desc:'Viewshed map showing church tower visibility from candidate observer points.' },
+        { tag:'Visual 11', img: 'assets/viewshed-slide-2.png', title:'Alternative locations', desc:'Three suitable alternative tower locations; Z=585.18m proved most strategic.' }
+      ]
+    },
+    lulc_szeged: {
+      theme: 'Remote Sensing & Machine Learning',
+      title: 'Land Use/Land Cover Change Detection — Szeged (2015–2025)',
+      summary: 'Analyzing spatio-temporal LULC change in Szeged over 10 years using Sentinel-2 and Random Forest classification.',
+      tools: 'ArcGIS Pro · Google Earth Engine · Sentinel-2 (10m)',
+      cover: 'water',
+      coverImg: 'assets/lulc-cover.jpeg',
+      slides: [
+        { tag:'Visual 12', img: 'assets/lulc-slide-1.jpg', title:'Classification triptych', desc:'LULC classification results for 2015, 2020 and 2025 — each reaching 93–95% accuracy.' },
+        { tag:'Visual 13', img: 'assets/lulc-slide-2.jpg', title:'Change detection', desc:'Change detection map highlighting significant urban expansion and vegetation loss.' }
+      ]
+    },
+    rs_assignments: {
+      theme: 'Remote Sensing & Machine Learning',
+      title: 'Remote Sensing Practical Assignments',
+      summary: 'A set of practical remote sensing assignments covering field identification, time-series and supervised classification.',
+      tools: 'SNAP · ERDAS · Sentinel-2',
+      cover: 'veg',
+      coverImg: 'assets/rs-cover.jpg',
+      slides: [
+        { tag:'Visual 14', img: 'assets/rs-slide-1.jpg', title:'Largest rapeseed field', desc:'Classification identifying the largest contiguous rapeseed field at 332.22 ha.' },
+        { tag:'Visual 15', img: 'assets/rs-slide-2.png', title:'NDVI / NDWI time-series', desc:'Vegetation and water index time-series for wheat fields, May 2024 – May 2025.' },
+        { tag:'Visual 15', img: 'assets/rs-slide-3.png', title:'Supervised classification', desc:'Supervised classification performed in SNAP/ERDAS using training samples for: Water, Forest, Soil, Artificial surfaces, Rapeseed, and Winter wheat.' },        
+        { tag:'Visual 16', img: 'assets/rs-slide-4.png', title:'Thematic map layout', desc:'Final thematic map layout produced in ERDAS.' }
+      ]
+    },
+    thesis_crop_yield: {
+      theme: 'Thesis Research — Crop Yield Prediction',
+      title: 'Winter Wheat Yield Prediction Using Sentinel-1/2 & EnMAP',
+      summary: 'Field-scale winter wheat yield prediction in Mezőhegyes, Hungary, comparing five model architectures with rigorous cross-field validation.',
+      tools: 'Python · PyTorch · DANN · Random Forest · XGBoost · LGBM · Sentinel-1/2 · EnMAP · QGIS',
+      cover: 'soil',
+      coverImg: 'assets/thesis-cover.jpg',
+      slides: [
+        { tag:'Visual 17', img: 'assets/thesis-slide-1.jpeg', title:'Study Area & Data', desc:"Located at the Hungary's largest contiguous agricultural estate (Nemzeti Ménesbirtok Zrt)." },
+        { tag:'Visual 17', img: 'assets/thesis-slide-2.jpeg', title:'Methodology Pipeline', desc:'The methodology pipeline consists of 6 sequential stages designed to process raw data inputs and train machine learning models for spatial yield prediction.' },
+        { tag:'Visual 17', img: 'assets/thesis-slide-3.jpeg', title:'Feature importance', desc:'Top 10 features — the June 14 image alone accounted for 43% of predictive importance.' },
+        { tag:'Visual 18', img: 'assets/thesis-slide-4.jpeg', title:'Model comparison', desc:'Comparing S1-only, S2-only, S1+S2 and S1+S2+EnMAP inputs across five models.' },
+        { tag:'Visual 19', img: 'assets/thesis-slide-5.jpeg', title:'DANN per-field heatmap', desc:'DANN achieved the best cross-field generalization with R²=0.49.' },
+        { tag:'Visual 20', img: 'assets/thesis-slide-6.jpg', title:'Spatial yield maps', desc:'Predicted vs. actual yield mapped spatially across the test fields.' },
+        { tag:'Visual 21', img: 'assets/thesis-slide-7.jpeg', title:'Per-field scatter plots', desc:'LOFO validation (R²≈0.5) proved more honest than random-split validation (R²≈0.8).' }
+      ]
+    },
+    tangsel_urban: {
+      theme: 'Professional Urban Planning & Disaster Risk',
+      title: 'Urban Planning & Disaster Risk — Tangerang Selatan, Indonesia',
+      summary: 'Five client projects for local government agencies: hazardous-waste mapping, land use compliance, disaster vulnerability, base mapping and drainage mapping.',
+      tools: 'ArcGIS · QGIS Model Builder · Drone survey',
+      cover: 'water',
+      coverImg: 'assets/tangsel-cover.png',
+      slides: [
+        { tag:'Visual 22', img: 'assets/tangsel-slide-1.png', title:'B3 waste hexagonal binning', desc:'Hexagonal binning map for B3 hazardous-waste-producing companies — solving dense point overlap.' },
+        { tag:'Visual 23', img: 'assets/tangsel-slide-4.png', title:'Disaster vulnerability model', desc:'QGIS Model Builder workflow automating vulnerability analysis across 10 disaster types.' },
+        { tag:'Visual 24', img: 'assets/tangsel-slide-5.png', title:'Serpong drainage map', desc:'Updated urban drainage map showing construction types and cover types.' },
+        { tag:'Visual 25', img: 'assets/tangsel-slide-2.png', title:'Land use compliance', desc:'Supervised classification results used to flag land use incompatibilities.' },
+        { tag:'Visual 26', img: 'assets/tangsel-slide-3.png', title:'RDRT CISOJATI base map', desc:'BIG-compliant base map produced through manual digitization and topology checks.' }
+      ]
+    },
+    indo_map: {
+      theme: 'Web GIS & Interactive Mapping',
+      title: 'Yogyakarta Map — Interactive Tourism Web Map',
+      summary: 'A full-stack web mapping application showcasing tourist attractions across Yogyakarta with categorical filtering and a live details panel.',
+      tools: 'HTML · CSS · OpenLayers · PHP (proxy) · GeoServer · GeoJSON',
+      cover: 'veg',
+      coverImg: 'assets/indomap-cover.png',
+      slides: [
+        { tag:'Visual 27', img: 'assets/indomap-slide-1.png', title:'Full application view', desc:'The full Yogyakarta Tourism WebGIS Map interface: sidebar filters alongside the interactive map.' },
+        { tag:'Visual 28', img: 'assets/indomap-slide-2.png', title:'Interactive details panel', desc:'Clicking an attraction highlights it on the map and opens a details panel.' }
+      ]
+    },
+    solar_suitability: {
+      theme: 'Spatial Modeling & Environmental Analysis',
+      title: 'Solar Suitability Analysis — Pest County, Hungary',
+      summary: 'An automated solar suitability model integrating land cover and radiation data into an interactive map.',
+      tools: 'Python · Google Earth Engine · geopandas · folium',
+      cover: 'soil',
+      coverImg: 'assets/solar-cover.png',
+      slides: [
+        { tag:'Visual 29', img: 'assets/solar-slide-1.png', title:'Suitability map', desc:'Interactive folium map showing the suitability gradient from red (low) to green (high).' },
+        { tag:'Visual 30', img: 'assets/solar-slide-2.png', title:'Automation code', desc:'Python code snippet from the automated workflow.' }
+      ]
+    },
+    hydrology: {
+      theme: 'Spatial Modeling & Environmental Analysis',
+      title: 'Hydrological Analysis — Graun im Vinschgau, Italy',
+      summary: 'Delineating a catchment area and analyzing slope conditions for a lake in an alpine region.',
+      tools: 'QGIS · DEM',
+      cover: 'water',
+      coverImg: 'assets/hydrology-cover.jpg',
+      slides: [
+        { tag:'Visual 31', img: 'assets/hydrology-slide-1.jpg', title:'Catchment basin', desc:'Hydrological map showing the delineated catchment basin.' },
+        { tag:'Visual 32', img: 'assets/hydrology-slide-2.jpg', title:'Slope map', desc:'Slope map identifying steep zones indicating fast runoff.' },
+        { tag:'Visual 33', img: 'assets/hydrology-slide-3.jpg', title:'Flow direction', desc:'D8 flow direction visualization showing strong hydrological flow.' }
+      ]
+    }
+  };
+
+  /* ============================================================
+     Helper functions
+     ============================================================ */
+  function placeholderSVG(size) {
+    const s = size || 32;
+    return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L3 21"/></svg>';
+  }
+
+  function getCoverClass(type) {
+    const map = { veg: 'var(--veg)', soil: 'var(--soil)', water: 'var(--water)' };
+    return map[type] || 'var(--veg)';
+  }
+
+  /* ============================================================
+     Build the Projects grid
+     ============================================================ */
+  const grid = document.getElementById('projectGrid');
+  Object.keys(PROJECTS).forEach((id) => {
+    const p = PROJECTS[id];
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'project-card reveal';
+    card.setAttribute('data-project', id);
+    card.setAttribute('aria-haspopup', 'dialog');
+    card.setAttribute('aria-label', 'View project: ' + p.title);
+    
+    const coverColor = getCoverClass(p.cover);
+    let coverInner;
+    if (p.coverImg && p.coverImg !== '') {
+      coverInner = '<img src="' + p.coverImg + '" alt="' + p.title + '" loading="lazy">';
+    } else {
+      coverInner = '<span class="ph" style="color:' + coverColor + '">' + placeholderSVG(48) + '</span>';
+    }
+    
+    card.innerHTML =
+      '<div class="project-cover">' + coverInner +
+        '<span class="count">' + p.slides.length + ' picture' + (p.slides.length > 1 ? 's' : '') + '</span>' +
+      '</div>' +
+      '<div class="project-body">' +
+        '<span class="theme">' + p.theme + '</span>' +
+        '<h3>' + p.title + '</h3>' +
+        '<p>' + p.summary + '</p>' +
+        '<div class="ptools">' + p.tools + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+
+  /* ============================================================
+     Scroll Reveal
+     ============================================================ */
+  const revealIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+  /* ============================================================
+     Coordinate readout for geo-tagged sections
+     ============================================================ */
+  const geoEls = document.querySelectorAll('[data-lat]');
+  const coord = document.getElementById('coord');
+  const geoIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        coord.innerHTML = '<span class="place">' + el.dataset.place + '</span>' + el.dataset.lat + ' · ' + el.dataset.lon;
+      }
+    });
+  }, { threshold: 0.5, rootMargin: '-40% 0px -40% 0px' });
+  geoEls.forEach(el => geoIO.observe(el));
+
+  /* ============================================================
+     LIGHTBOX — handles both project slideshows and journey samples
+     ============================================================ */
+  const lightbox = document.getElementById('lightbox');
+  const lbMedia = document.getElementById('lightboxMedia');
+  const lbTag = document.getElementById('lightboxTag');
+  const lbIdx = document.getElementById('lightboxIdx');
+  const lbTitle = document.getElementById('lightboxTitle');
+  const lbDesc = document.getElementById('lightboxDesc');
+  const lbClose = document.getElementById('lightboxClose');
+  const lbPrev = document.getElementById('lightboxPrev');
+  const lbNext = document.getElementById('lightboxNext');
+  let lastFocused = null;
+  let activeSlides = null;
+  let activeIndex = 0;
+
+  function renderSlide() {
+    if (!activeSlides) return;
+    const s = activeSlides[activeIndex];
+    const tint = s.tint || 'veg';
+    const color = getCoverClass(tint);
+    lbMedia.className = 'lightbox-media';
+    
+    // CHECK: does img exist AND is it not empty?
+    if (s.img && s.img !== '') {
+      lbMedia.innerHTML = '<img src="' + s.img + '" alt="' + (s.title || '') + '" loading="lazy">';
+    } else {
+      lbMedia.innerHTML = '<span class="ph" style="color:' + color + '">' + placeholderSVG(64) + '</span>';
+    }
+    
+    lbTag.textContent = s.tag || '';
+    lbIdx.textContent = (activeIndex + 1) + ' / ' + activeSlides.length;
+    lbTitle.textContent = s.title || 'Untitled';
+    lbDesc.textContent = s.desc || '';
+  }
+
+  function openProjectLightbox(projectId, startIndex) {
+    const p = PROJECTS[projectId];
+    if (!p) return;
+    activeSlides = p.slides;
+    activeIndex = startIndex || 0;
+    lightbox.classList.add('has-slides');
+    renderSlide();
+    showLightbox();
+  }
+
+  function openJourneyLightbox(thumb) {
+    activeSlides = null;
+    lightbox.classList.remove('has-slides');
+    const img = thumb.dataset.img;
+    const phEl = thumb.querySelector('.ph');
+    
+    lbMedia.className = 'lightbox-media';
+    lbMedia.innerHTML = img
+      ? '<img src="' + img + '" alt="' + (thumb.dataset.title || '') + '">'
+      : (phEl ? phEl.outerHTML.replace('width="20" height="20"', 'width="64" height="64"') : '<span class="ph">' + placeholderSVG(64) + '</span>');
+    
+    lbTag.textContent = thumb.dataset.type || 'Sample';
+    lbIdx.textContent = '';
+    lbTitle.textContent = thumb.dataset.title || 'Untitled';
+    lbDesc.innerHTML = img
+      ? ''
+      : 'Add a <code>data-img="assets/your-image.jpg"</code> attribute to this thumbnail to show a real image.';
+    
+    showLightbox();
+  }
+
+  function showLightbox() {
+    lastFocused = document.activeElement;
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lbClose.focus();
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  function stepSlide(dir) {
+    if (!activeSlides) return;
+    activeIndex = (activeIndex + dir + activeSlides.length) % activeSlides.length;
+    renderSlide();
+  }
+
+  /* ============================================================
+     Event Listeners
+     ============================================================ */
+  // Journey thumbnails
+  document.querySelectorAll('.media-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => openJourneyLightbox(thumb));
+  });
+
+  // Project cards
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.project-card');
+    if (card) openProjectLightbox(card.getAttribute('data-project'), 0);
+  });
+
+  // Lightbox controls
+  lbClose.addEventListener('click', closeLightbox);
+  lbPrev.addEventListener('click', () => stepSlide(-1));
+  lbNext.addEventListener('click', () => stepSlide(1));
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') stepSlide(-1);
+    if (e.key === 'ArrowRight') stepSlide(1);
+  });
+</script>
+
+</body>
+</html>
